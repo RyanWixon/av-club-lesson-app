@@ -5,9 +5,17 @@
 }
 
 .workspace {
-    width: 50vw;
-    height: 50vh;
+    width: 60vw;
+    height: 60vh;
     background-color: lightgrey;
     position: relative;
+    margin: auto;
+}
 
+.device-image {
+    transition: transform 0.3s ease;
+}
+
+.device-image:hover {
+    transform: scale(1.2);
 }

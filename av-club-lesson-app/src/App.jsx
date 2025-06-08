@@ -1,104 +1,123 @@
 import { useState, useEffect, useRef } from 'react'
 import redSquare from './assets/redSquare.png'
+import greenRectangle from './assets/greenRectangle.png'
 import './App.css'
 
 function App() {
 
-  return (
-    <Workspace />
-  )
-}
+  // states to control aspects of the entire application
+  const [devices, setDevices] = useState([]);
 
-function Workspace() {
-  
-  const workspaceRef = useRef(null);
-
-  // states to control the workspace and the devices within it
-  const [size, setSize] = useState({ width: 0, height: 0 });
-  const [devices, setDevices] = useState([
-    {id: 0, position: {x: 0, y: 0}, offset: {x: 0, y: 0}, dragging: false},
-    {id: 1, position: {x: 100, y: 100}, offset: {x: 0, y: 0}, dragging: false}
-  ])
-
-  // update a single device's offset state
-  const updateOffset = (id, value) => {
-    setDevices(prevDevices => prevDevices.map(device => device.id === id ? { ...device, offset: value } : device));
-  }
-
-  // update a single device's dragging state
-  const updateDragging = (id, value) => {
-    setDevices(prevDevices => prevDevices.map(device => device.id === id ? { ...device, dragging: value} : device));
-  }
-
-  // set the position state for all devices being dragged
-  const moveDraggingDevices = (e) => {
-    function getNewXY(offset) {
-      let newX = Math.max(0, Math.min(e.clientX - offset.x, size.width - 100));
-      let newY = Math.max(0, Math.min(e.clientY - offset.y, size.height - 100));
-      return {x: newX, y: newY};
-    }
-    setDevices(prevDevices => prevDevices.map(device => device.dragging ? { ...device, position: getNewXY(device.offset) } : device));
-  } 
-
-  // set all device's dragging state to false
-  const dropAllDevices = () => {
-    setDevices(prevDevices => prevDevices.map(device => ({ ...device, dragging: false})));
-  }
-
-  // measure the workspace when the window resizes
-  useEffect(() => {
-    const updateSize = () => {
-      if (workspaceRef.current) {
-        
-        // resize the workspace
-        const { offsetWidth, offsetHeight } = workspaceRef.current;
-        setSize({ width: offsetWidth, height: offsetHeight });
-        
-        // move any devices that may have gone out of bounds during the resize
-        setDevices(prevDevices => prevDevices.map(device => {
-          console.log(size.width + ', ' + size.height);
-          let newX = Math.max(0, Math.min(device.position.x, offsetWidth - 100));
-          let newY = Math.max(0, Math.min(device.position.y, offsetHeight - 100));
-          return { ...device, position: {x: newX, y: newY}};
-        }))
-      }
-    };
-
-    updateSize(); // Measure once on mount
-
-    window.addEventListener('resize', updateSize); // Listen for resizes
-
-    return () => {
-      window.removeEventListener('resize', updateSize); // Clean up
-    };
-  }, []);
+  const addDevice = (path, sourceWidth, sourceHeight) => {
+    setDevices(prev => {
+      const nextId = prev.length > 0 ? Math.max(...prev.map(d => d.id)) + 1 : 0;
+      return [...prev, {
+        id: nextId,
+        image: { src: path, width: sourceWidth, height: sourceHeight},
+        position: { x: 50, y: 50 }, // or random location
+        offset: { x: 0, y: 0 },
+        dragging: false
+      }];
+    });
+  };
 
   return (
     <>
-    <div 
+      <Workspace devices={devices} setDevices={setDevices} />
+      <button onClick={() => addDevice(redSquare, 100, 100)}>Add a new red device</button>
+      <button onClick={() => addDevice(greenRectangle, 75, 25)}>Add a new green device</button>
+    </>
+  )
+}
+
+function Workspace({ devices, setDevices }) {
+  
+  const workspaceRef = useRef(null);
+  
+  // states to control the workspace
+  const [size, setSize] = useState({ width: 0, height: 0 });
+
+  // updates the offset state of a single device with a matching id
+  const updateOffset = (id, value) => {
+    setDevices(prevDevices => prevDevices.map(device => device.id === id ? { ...device, offset: value } : device));
+  };
+
+  // updates the dragging state of a single device with a matching id
+  const updateDragging = (id, value) => {
+    setDevices(prevDevices => prevDevices.map(device => device.id === id ? { ...device, dragging: value } : device));
+  };
+
+  // updates the position state of all devices currently being dragged 
+  const moveDraggingDevices = (e) => {
+    const getNewXY = (offset, width, height) => {
+      let newX = Math.max(0 + width * 0.1, Math.min(e.clientX - offset.x, size.width - (width * 1.1)));
+      let newY = Math.max(0 + height * 0.1, Math.min(e.clientY - offset.y, size.height - (height * 1.1)));
+      return { x: newX, y: newY };
+    };
+    setDevices(prevDevices => prevDevices.map(device => device.dragging ? { ...device, position: getNewXY(device.offset, device.image.width, device.image.height) } : device));
+  };
+
+  // sets the dragging state of all devices to false
+  const dropAllDevices = () => {
+    setDevices(prevDevices => prevDevices.map(device => ({ ...device, dragging: false })));
+  };
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (workspaceRef.current) {
+        const { offsetWidth, offsetHeight } = workspaceRef.current;
+        setSize({ width: offsetWidth, height: offsetHeight });
+
+        // move devices back inside the workspace if they are out of bounds after the size change
+        setDevices(prevDevices => prevDevices.map(device => {
+          let newX = Math.max(0, Math.min(device.position.x, offsetWidth - device.image.width));
+          let newY = Math.max(0, Math.min(device.position.y, offsetHeight - device.image.height));
+          return { ...device, position: { x: newX, y: newY } };
+        }));
+      }
+    };
+
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+
+  return (
+    <div
       className='workspace'
       ref={workspaceRef}
       onMouseMove={moveDraggingDevices}
       onMouseUp={dropAllDevices}
       onMouseLeave={dropAllDevices}
     >
-      <Device deviceState={devices[0]} setOffset={updateOffset} setDragging={updateDragging}/>
-      <Device deviceState={devices[1]} setOffset={updateOffset} setDragging={updateDragging}/>
+      {devices.map(device =>
+        <Device
+          key={device.id}
+          deviceState={device}
+          setOffset={updateOffset}
+          setDragging={updateDragging}
+        />
+      )}
     </div>
-    </>
-  )
+  );
 }
 
+// component representing an individual device displayed within the workspace
 function Device({ deviceState, setOffset, setDragging }) {
-
+  
+  // calculates necessary offset to make the device appear to follow the mouse and updates state accordingly
   const grabDevice = (e) => {
     setDragging(deviceState.id, true);
-    setOffset(deviceState.id, {x: e.clientX - deviceState.position.x, y: e.clientY - deviceState.position.y});
-  }
+    setOffset(deviceState.id, {
+      x: e.clientX - deviceState.position.x,
+      y: e.clientY - deviceState.position.y
+    });
+  };
 
   return (
-    <img 
-      src={redSquare} 
+    <img
+      className='device-image'
+      src={deviceState.image.src}
       draggable={false}
       style={{
         left: deviceState.position.x,
@@ -107,9 +126,8 @@ function Device({ deviceState, setOffset, setDragging }) {
         cursor: 'grab'
       }}
       onMouseDown={grabDevice}
-    >
-    </img>
-  )
+    />
+  );
 }
 
-export default App
+export default App;
