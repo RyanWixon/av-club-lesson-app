@@ -10,11 +10,11 @@ function App() {
 
   const addDevice = (path, sourceWidth, sourceHeight) => {
     setDevices(prev => {
-      const nextId = prev.length > 0 ? Math.max(...prev.map(d => d.id)) + 1 : 0;
+      const nextId = prev.length;
       return [...prev, {
         id: nextId,
         image: { src: path, width: sourceWidth, height: sourceHeight},
-        position: { x: 50, y: 50 }, // or random location
+        position: { x: 50, y: 50 },
         offset: { x: 0, y: 0 },
         dragging: false
       }];
@@ -26,6 +26,10 @@ function App() {
       <Workspace devices={devices} setDevices={setDevices} />
       <button onClick={() => addDevice(redSquare, 100, 100)}>Add a new red device</button>
       <button onClick={() => addDevice(greenRectangle, 75, 25)}>Add a new green device</button>
+      <select id='click-mode'>
+        <option value='Drag'>Move Devices</option>
+        <option value='Edge'>Create Connections</option>
+      </select>
     </>
   )
 }
@@ -90,6 +94,18 @@ function Workspace({ devices, setDevices }) {
       onMouseUp={dropAllDevices}
       onMouseLeave={dropAllDevices}
     >
+      <svg className='edge-layer'>
+      {devices.length >= 2 && (
+      <DeviceEdge 
+        device1State={devices[0]}
+        device2State={devices[1]}
+      />
+      )}
+        {/* <DeviceEdge 
+          device1State={devices[0]}
+          device2State={devices[1]}
+        /> */}
+      </svg>
       {devices.map(device =>
         <Device
           key={device.id}
@@ -126,6 +142,20 @@ function Device({ deviceState, setOffset, setDragging }) {
         cursor: 'grab'
       }}
       onMouseDown={grabDevice}
+    />
+  );
+}
+
+function DeviceEdge({ device1State, device2State }) {
+
+  return (
+    <line
+      x1={device1State.position.x + device1State.image.width / 2}
+      x2={device2State.position.x + device2State.image.width / 2}
+      y1={device1State.position.y + device1State.image.height / 2}
+      y2={device2State.position.y + device2State.image.height / 2}
+      stroke='black'
+      strokeWidth={5}
     />
   );
 }
