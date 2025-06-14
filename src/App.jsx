@@ -3,11 +3,19 @@ import redSquare from './assets/redSquare.png'
 import greenRectangle from './assets/greenRectangle.png'
 import './App.css'
 
+const Modes = {
+  Dragging: 'dragging',
+  Connecting: 'connecting'
+}
+
 function App() {
 
-  // states to control aspects of the entire application
+  // #### STATES ####
   const [devices, setDevices] = useState([]);
+  const [edges, setEdges] = useState([]);
+  const [mode, setMode] = useState(Modes.Dragging);
 
+  // #### HELPER FUNCTIONS ####
   const addDevice = (path, sourceWidth, sourceHeight) => {
     setDevices(prev => {
       const nextId = prev.length;
@@ -21,37 +29,79 @@ function App() {
     });
   };
 
+  const addEdge = () =>  {
+    setEdges(prev => {
+      return [...prev, {
+
+      }];
+    })
+  }
+
+  // #### SOURCE ####
   return (
     <>
-      <Workspace devices={devices} setDevices={setDevices} />
+      <Workspace devices={devices} setDevices={setDevices} edges={edges} setEdges={setEdges} mode={mode} />
       <button onClick={() => addDevice(redSquare, 100, 100)}>Add a new red device</button>
       <button onClick={() => addDevice(greenRectangle, 75, 25)}>Add a new green device</button>
-      <select id='click-mode'>
-        <option value='Drag'>Move Devices</option>
-        <option value='Edge'>Create Connections</option>
+      <select onChange={(e) => setMode(e.target.value)}>
+        <option value={Modes.Dragging}>Move Devices</option>
+        <option value={Modes.Connecting}>Create Connections</option>
       </select>
     </>
   )
 }
 
-function Workspace({ devices, setDevices }) {
-  
-  const workspaceRef = useRef(null);
-  
-  // states to control the workspace
-  const [size, setSize] = useState({ width: 0, height: 0 });
+// component representing the space in the screen in which devices can be placed, dragged, and otherwise configured
+function Workspace({ devices, setDevices, edges, setEdges, mode }) {
 
-  // updates the offset state of a single device with a matching id
+  // #### REFS AND STATES ####
+  const workspaceRef = useRef(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const [ghostEdge, setGhostEdge] = useState({position: {x1: 0, x2: 0, y1: 0, y2: 0}, visible: false});
+
+  // #### TOP LEVEL EVENT HANDLERS ####
+  const handleMouseMove = (e) => {
+    switch (mode) {
+      case Modes.Dragging:
+        moveDraggingDevices(e);
+        break;
+      case Modes.Connecting:
+        moveGhostEdge(e);
+        break;
+    }
+  }
+
+  const handleMouseUp = () => {
+    switch (mode) {
+      case Modes.Dragging:
+        dropAllDevices();
+        break;
+      case Modes.Connecting:
+        hideGhostEdge();
+        break;
+    }
+  }
+
+  const handleMouseLeave = () => {
+    switch (mode) {
+      case Modes.Dragging:
+        dropAllDevices();
+        break;
+      case Modes.Connecting:
+        hideGhostEdge();
+        break;
+    }
+  }
+
+  // #### HELPER FUNCTIONS ####
   const updateOffset = (id, value) => {
     setDevices(prevDevices => prevDevices.map(device => device.id === id ? { ...device, offset: value } : device));
   };
 
-  // updates the dragging state of a single device with a matching id
   const updateDragging = (id, value) => {
     setDevices(prevDevices => prevDevices.map(device => device.id === id ? { ...device, dragging: value } : device));
   };
 
-  // updates the position state of all devices currently being dragged 
   const moveDraggingDevices = (e) => {
     const getNewXY = (offset, width, height) => {
       let newX = Math.max(0 + width * 0.1, Math.min(e.clientX - offset.x, size.width - (width * 1.1)));
@@ -61,10 +111,28 @@ function Workspace({ devices, setDevices }) {
     setDevices(prevDevices => prevDevices.map(device => device.dragging ? { ...device, position: getNewXY(device.offset, device.image.width, device.image.height) } : device));
   };
 
-  // sets the dragging state of all devices to false
   const dropAllDevices = () => {
     setDevices(prevDevices => prevDevices.map(device => ({ ...device, dragging: false })));
   };
+
+  const moveGhostEdge = (e) => {
+    if (ghostEdge.visible) {
+      const bounds = workspaceRef.current.getBoundingClientRect();
+      setGhostEdge({
+        position: {
+          x1: ghostEdge.position.x1, 
+          x2: e.clientX - bounds.left,
+          y1: ghostEdge.position.y1,
+          y2: e.clientY - bounds.top
+        }, 
+        visible: true
+      });
+    }
+  }
+
+  const hideGhostEdge = () => {
+    setGhostEdge({ ...ghostEdge, visible: false});
+  }
 
   useEffect(() => {
     const updateSize = () => {
@@ -86,21 +154,17 @@ function Workspace({ devices, setDevices }) {
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
+  // #### SOURCE ####
   return (
     <div
       className='workspace'
       ref={workspaceRef}
-      onMouseMove={moveDraggingDevices}
-      onMouseUp={dropAllDevices}
-      onMouseLeave={dropAllDevices}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
     >
       <svg className='edge-layer'>
-      {devices.length >= 2 && (
-      <DeviceEdge 
-        device1State={devices[0]}
-        device2State={devices[1]}
-      />
-      )}
+        <GhostEdge ghostEdgeState={ghostEdge}/>
         {/* <DeviceEdge 
           device1State={devices[0]}
           device2State={devices[1]}
@@ -110,8 +174,11 @@ function Workspace({ devices, setDevices }) {
         <Device
           key={device.id}
           deviceState={device}
+          workspaceRef={workspaceRef}
+          mode={mode}
           setOffset={updateOffset}
           setDragging={updateDragging}
+          setGhostEdge={setGhostEdge}
         />
       )}
     </div>
@@ -119,9 +186,21 @@ function Workspace({ devices, setDevices }) {
 }
 
 // component representing an individual device displayed within the workspace
-function Device({ deviceState, setOffset, setDragging }) {
+function Device({ deviceState, workspaceRef, mode, setOffset, setDragging, setGhostEdge }) {
   
-  // calculates necessary offset to make the device appear to follow the mouse and updates state accordingly
+  // #### TOP LEVEL EVENT HANDLERS ####
+  const handleMouseDown = (e) => {
+    switch (mode) {
+      case Modes.Dragging:
+        grabDevice(e);
+        break;
+      case Modes.Connecting:
+        connectDevice(e);
+        break;
+    }
+  }
+  
+  // #### HELPER FUNCTIONS ####
   const grabDevice = (e) => {
     setDragging(deviceState.id, true);
     setOffset(deviceState.id, {
@@ -130,6 +209,20 @@ function Device({ deviceState, setOffset, setDragging }) {
     });
   };
 
+  const connectDevice = (e) => {
+    const bounds = workspaceRef.current.getBoundingClientRect();
+    setGhostEdge({
+      position: {
+        x1: deviceState.position.x  + deviceState.image.width / 2, 
+        x2: e.clientX - bounds.left,
+        y1: deviceState.position.y + deviceState.image.height / 2, 
+        y2: e.clientY - bounds.top
+      },
+      visible: true
+    });
+  }
+
+  // #### SOURCE ####
   return (
     <img
       className='device-image'
@@ -141,13 +234,15 @@ function Device({ deviceState, setOffset, setDragging }) {
         position: 'absolute',
         cursor: 'grab'
       }}
-      onMouseDown={grabDevice}
+      onMouseDown={handleMouseDown}
     />
   );
 }
 
+// component representing a connection between 2 individual devices
 function DeviceEdge({ device1State, device2State }) {
 
+  // #### SOURCE ####
   return (
     <line
       x1={device1State.position.x + device1State.image.width / 2}
@@ -158,6 +253,30 @@ function DeviceEdge({ device1State, device2State }) {
       strokeWidth={5}
     />
   );
+}
+
+// component representing an edge being drawn from a device which is not yet connected
+function GhostEdge({ ghostEdgeState }) {
+
+  // #### SOURCE ####
+  if (ghostEdgeState.visible) {
+    return (
+      <line
+        x1={ghostEdgeState.position.x1}
+        x2={ghostEdgeState.position.x2}
+        y1={ghostEdgeState.position.y1}
+        y2={ghostEdgeState.position.y2}
+        stroke='black'
+        strokeWidth={5}
+        opacity={0.33}
+      />
+    );
+  }
+  else {
+    return (
+      <></>
+    )
+  }
 }
 
 export default App;
