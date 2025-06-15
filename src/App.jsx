@@ -71,6 +71,7 @@ function Workspace({ devices, setDevices, edges, setEdges, mode }) {
         break;
       case Modes.Connecting:
         hideGhostEdge();
+        setEdgeStartID(-1);
         break;
     }
   }
