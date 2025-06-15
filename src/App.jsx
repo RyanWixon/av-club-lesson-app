@@ -29,14 +29,6 @@ function App() {
     });
   };
 
-  const addEdge = () =>  {
-    setEdges(prev => {
-      return [...prev, {
-
-      }];
-    })
-  }
-
   // #### SOURCE ####
   return (
     <>
@@ -58,6 +50,7 @@ function Workspace({ devices, setDevices, edges, setEdges, mode }) {
   const workspaceRef = useRef(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [ghostEdge, setGhostEdge] = useState({position: {x1: 0, x2: 0, y1: 0, y2: 0}, visible: false});
+  const [edgeStartID, setEdgeStartID] = useState(-1);
 
   // #### TOP LEVEL EVENT HANDLERS ####
   const handleMouseMove = (e) => {
@@ -165,10 +158,12 @@ function Workspace({ devices, setDevices, edges, setEdges, mode }) {
     >
       <svg className='edge-layer'>
         <GhostEdge ghostEdgeState={ghostEdge}/>
-        {/* <DeviceEdge 
-          device1State={devices[0]}
-          device2State={devices[1]}
-        /> */}
+        {edges.map(edge => 
+          <Edge
+            device1State={devices[edge.deviceid1]}
+            device2State={devices[edge.deviceid2]}
+          />
+        )}
       </svg>
       {devices.map(device =>
         <Device
@@ -176,9 +171,12 @@ function Workspace({ devices, setDevices, edges, setEdges, mode }) {
           deviceState={device}
           workspaceRef={workspaceRef}
           mode={mode}
+          setEdges={setEdges}
           setOffset={updateOffset}
           setDragging={updateDragging}
           setGhostEdge={setGhostEdge}
+          edgeStartID={edgeStartID}
+          setEdgeStartID={setEdgeStartID}
         />
       )}
     </div>
@@ -186,7 +184,7 @@ function Workspace({ devices, setDevices, edges, setEdges, mode }) {
 }
 
 // component representing an individual device displayed within the workspace
-function Device({ deviceState, workspaceRef, mode, setOffset, setDragging, setGhostEdge }) {
+function Device({ deviceState, workspaceRef, mode, setEdges, setOffset, setDragging, setGhostEdge, edgeStartID, setEdgeStartID }) {
   
   // #### TOP LEVEL EVENT HANDLERS ####
   const handleMouseDown = (e) => {
@@ -196,7 +194,14 @@ function Device({ deviceState, workspaceRef, mode, setOffset, setDragging, setGh
         break;
       case Modes.Connecting:
         connectDevice(e);
+        setEdgeStartID(deviceState.id);
         break;
+    }
+  }
+
+  const handleMouseUp = (e) => {
+    if (mode === Modes.Connecting && edgeStartID != -1 && edgeStartID != deviceState.id) {
+      setEdges(prev => [...prev, {deviceid1: edgeStartID, deviceid2: deviceState.id}]);
     }
   }
   
@@ -235,12 +240,13 @@ function Device({ deviceState, workspaceRef, mode, setOffset, setDragging, setGh
         cursor: 'grab'
       }}
       onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
     />
   );
 }
 
 // component representing a connection between 2 individual devices
-function DeviceEdge({ device1State, device2State }) {
+function Edge({ device1State, device2State }) {
 
   // #### SOURCE ####
   return (
