@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import redSquare from './assets/redSquare.png'
-import greenRectangle from './assets/greenRectangle.png'
+import videoCamera from './assets/videoCamera.png'
+import laptop from './assets/laptop.png'
 import './App.css'
 
 const Modes = {
@@ -33,8 +33,8 @@ function App() {
   return (
     <>
       <Workspace devices={devices} setDevices={setDevices} edges={edges} setEdges={setEdges} mode={mode} />
-      <button onClick={() => addDevice(redSquare, 100, 100)}>Add a new red device</button>
-      <button onClick={() => addDevice(greenRectangle, 75, 25)}>Add a new green device</button>
+      <button onClick={() => addDevice(videoCamera, 100, 100)}>Add a new video camera</button>
+      <button onClick={() => addDevice(laptop, 100, 100)}>Add a new laptop</button>
       <select onChange={(e) => setMode(e.target.value)}>
         <option value={Modes.Dragging}>Move Devices</option>
         <option value={Modes.Connecting}>Create Connections</option>
@@ -230,6 +230,7 @@ function Device({ deviceState, workspaceRef, mode, setEdges, setOffset, setDragg
 
   // #### SOURCE ####
   return (
+    <>
     <img
       className='device-image'
       src={deviceState.image.src}
@@ -243,6 +244,11 @@ function Device({ deviceState, workspaceRef, mode, setEdges, setOffset, setDragg
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
     />
+    <img
+      className='delete-button'
+
+    />
+    </>
   );
 }
 
