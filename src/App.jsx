@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import videoCamera from './assets/videoCamera.png'
 import laptop from './assets/laptop.png'
+import deleteIcon from './assets/deleteIcon.png'
 import './App.css'
 
 const Modes = {
@@ -18,9 +19,16 @@ function App() {
   // #### HELPER FUNCTIONS ####
   const addDevice = (path, sourceWidth, sourceHeight) => {
     setDevices(prev => {
-      const nextId = prev.length;
+      
+      // find the smallest ID that is not already in use
+      let nextID = 0;
+      const existingIDs = new Set(devices.map(device => device.id));
+      while (existingIDs.has(nextID)) {
+        nextID++;
+      }
+      
       return [...prev, {
-        id: nextId,
+        id: nextID,
         image: { src: path, width: sourceWidth, height: sourceHeight},
         position: { x: 50, y: 50 },
         offset: { x: 0, y: 0 },
@@ -128,6 +136,11 @@ function Workspace({ devices, setDevices, edges, setEdges, mode }) {
     setGhostEdge({ ...ghostEdge, visible: false});
   }
 
+  const removeDevice = (id) => {
+    setEdges(prev => prev.filter(edge => edge.deviceid1 !== id && edge.deviceid2 !== id));
+    setDevices(prev => prev.filter(device => device.id !== id));
+  }
+
   useEffect(() => {
     const updateSize = () => {
       if (workspaceRef.current) {
@@ -161,8 +174,9 @@ function Workspace({ devices, setDevices, edges, setEdges, mode }) {
         <GhostEdge ghostEdgeState={ghostEdge}/>
         {edges.map(edge => 
           <Edge
-            device1State={devices[edge.deviceid1]}
-            device2State={devices[edge.deviceid2]}
+            key={`${edge.deviceid1} - ${edge.deviceid2}`}
+            device1State={devices.find(device => device.id === edge.deviceid1)}
+            device2State={devices.find(device => device.id === edge.deviceid2)}
           />
         )}
       </svg>
@@ -178,6 +192,7 @@ function Workspace({ devices, setDevices, edges, setEdges, mode }) {
           setGhostEdge={setGhostEdge}
           edgeStartID={edgeStartID}
           setEdgeStartID={setEdgeStartID}
+          removeDevice={removeDevice}
         />
       )}
     </div>
@@ -185,8 +200,11 @@ function Workspace({ devices, setDevices, edges, setEdges, mode }) {
 }
 
 // component representing an individual device displayed within the workspace
-function Device({ deviceState, workspaceRef, mode, setEdges, setOffset, setDragging, setGhostEdge, edgeStartID, setEdgeStartID }) {
+function Device({ deviceState, workspaceRef, mode, setEdges, setOffset, setDragging, setGhostEdge, edgeStartID, setEdgeStartID, removeDevice }) {
   
+  // #### STATES ####
+  const [hovering, setHovering] = useState(false);
+
   // #### TOP LEVEL EVENT HANDLERS ####
   const handleMouseDown = (e) => {
     switch (mode) {
@@ -202,7 +220,16 @@ function Device({ deviceState, workspaceRef, mode, setEdges, setOffset, setDragg
 
   const handleMouseUp = (e) => {
     if (mode === Modes.Connecting && edgeStartID != -1 && edgeStartID != deviceState.id) {
-      setEdges(prev => [...prev, {deviceid1: edgeStartID, deviceid2: deviceState.id}]);
+      setEdges(prev => {
+        const duplicate = prev.some(edge => 
+          (edge.deviceid1 == edgeStartID && edge.deviceid2 == deviceState.id) ||
+          (edge.deviceid1 == deviceState.id && edge.deviceid2 == edgeStartID)
+        )
+        if (duplicate) {
+          return prev;
+        }
+        return [...prev, {deviceid1: edgeStartID, deviceid2: deviceState.id}]
+      });
     }
   }
   
@@ -230,25 +257,37 @@ function Device({ deviceState, workspaceRef, mode, setEdges, setOffset, setDragg
 
   // #### SOURCE ####
   return (
-    <>
-    <img
-      className='device-image'
-      src={deviceState.image.src}
-      draggable={false}
-      style={{
-        left: deviceState.position.x,
-        top: deviceState.position.y,
-        position: 'absolute',
-        cursor: 'grab'
-      }}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-    />
-    <img
-      className='delete-button'
-
-    />
-    </>
+    <div
+      className='device-container'
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+    >
+      <img
+        className='device-image'
+        src={deviceState.image.src}
+        draggable={false}
+        style={{
+          left: deviceState.position.x,
+          top: deviceState.position.y,
+          position: 'absolute',
+          cursor: 'grab'
+        }}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+      />
+      <img
+        className='delete-button'
+        src={deleteIcon}
+        draggable={false}
+        style={{
+          left: deviceState.position.x + deviceState.image.width - 10,
+          top: deviceState.position.y + 10,
+          position: 'absolute',
+          opacity: hovering ? 1 : 0
+        }}
+        onClick={() => removeDevice(deviceState.id)}
+      />
+    </div>
   );
 }
 
