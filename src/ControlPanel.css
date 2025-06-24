@@ -11,20 +11,21 @@
     gap: 10px;
 }
 
-.mode-button {
+.control-button {
     width: 75px;
     height: 75px;
     border-radius: 10px;
     transition: background-color 0.2s ease;
 }
 
-.mode-button:hover,
-.mode-button.active {
+.control-button:hover,
+.control-button.active {
     background-color: lightgreen;
 }
 
-.mode-button-icon {
+.control-button-icon {
     width: 100%;
     height: 100%;
     object-fit: contain;
 }
+

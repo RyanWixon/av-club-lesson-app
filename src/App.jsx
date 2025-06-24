@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Modes } from './enums'
+import { Modes, Edges } from './enums'
 import videoCamera from './assets/videoCamera.png'
 import laptop from './assets/laptop.png'
 import './App.css'
@@ -12,7 +12,8 @@ function App() {
 
   // #### STATES ####
   const [appState, setAppState] = useState({
-    mode: Modes.Dragging
+    mode: Modes.Dragging,
+    edge: Edges.HDMI
   });
   const [workspaceState, setWorkspaceState] = useState({
     devices: [],
