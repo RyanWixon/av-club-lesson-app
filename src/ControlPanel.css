@@ -1,0 +1,30 @@
+.control-panel {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.mode-button {
+    width: 75px;
+    height: 75px;
+    border-radius: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.mode-button:hover,
+.mode-button.active {
+    background-color: lightgreen;
+}
+
+.mode-button-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}

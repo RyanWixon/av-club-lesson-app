@@ -23,10 +23,10 @@
     transition: opacity 0.2s ease, transform 0.2s ease
 }
 
-.device-container:hover .device-image {
+.delete-button:hover {
     transform: scale(1.2);
 }
 
-.delete-button:hover {
+.device-container:hover .device-image {
     transform: scale(1.2);
 }

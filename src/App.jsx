@@ -5,6 +5,7 @@ import laptop from './assets/laptop.png'
 import './App.css'
 
 import Workspace from './Workspace'
+import ControlPanel from './ControlPanel'
 
 // top level component for the app
 function App() {
@@ -53,10 +54,7 @@ function App() {
       />
       <button onClick={() => addDevice(videoCamera, 100, 100)}>Add a new video camera</button>
       <button onClick={() => addDevice(laptop, 100, 100)}>Add a new laptop</button>
-      <select onChange={(e) => setAppState(prev => ({ ...prev, mode: e.target.value }))}>
-        <option value={Modes.Dragging}>Move Devices</option>
-        <option value={Modes.Connecting}>Create Connections</option>
-      </select>
+      <ControlPanel appState={appState} setAppState={setAppState} />
     </>
   )
 }
