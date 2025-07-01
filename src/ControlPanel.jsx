@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Modes, Edges } from './enums'
 import dragIcon from './assets/dragIcon.png'
 import connectIcon from './assets/connectIcon.png'
@@ -15,13 +14,17 @@ function ControlPanel({ appState, setAppState }) {
     // #### SOURCE ####
     return (
         <div className='control-panel'>
-            <ModeButton image={dragIcon} setToMode={Modes.Dragging} appState={appState} setAppState={setAppState}/>
-            <ModeButton image={connectIcon} setToMode={Modes.Connecting} appState={appState} setAppState={setAppState}/>
-            <EdgeButton image={hdmi} setToEdge={Edges.HDMI} appState={appState} setAppState={setAppState}/>
-            <EdgeButton image={xlr} setToEdge={Edges.XLR} appState={appState} setAppState={setAppState}/>
-            <EdgeButton image={usb} setToEdge={Edges.USB} appState={appState} setAppState={setAppState}/>
-            <EdgeButton image={ethernet} setToEdge={Edges.Ethernet} appState={appState} setAppState={setAppState}/>
-            <EdgeButton image={wifi} setToEdge={Edges.WiFi} appState={appState} setAppState={setAppState}/>
+            <div className='control-panel-mode'>
+                <ModeButton image={dragIcon} setToMode={Modes.Dragging} appState={appState} setAppState={setAppState}/>
+                <ModeButton image={connectIcon} setToMode={Modes.Connecting} appState={appState} setAppState={setAppState}/>
+            </div>
+            <div className='control-panel-edge'>
+                <EdgeButton image={hdmi} setToEdge={Edges.HDMI} appState={appState} setAppState={setAppState}/>
+                <EdgeButton image={xlr} setToEdge={Edges.XLR} appState={appState} setAppState={setAppState}/>
+                <EdgeButton image={usb} setToEdge={Edges.USB} appState={appState} setAppState={setAppState}/>
+                <EdgeButton image={ethernet} setToEdge={Edges.Ethernet} appState={appState} setAppState={setAppState}/>
+                <EdgeButton image={wifi} setToEdge={Edges.WiFi} appState={appState} setAppState={setAppState}/>
+            </div>
         </div>
     )
 }
@@ -38,14 +41,6 @@ function ModeButton({ image, setToMode, appState, setAppState }) {
         >
             <img src={image} className='control-button-icon'></img>
         </button>
-    )
-}
-
-function EdgeSelection() {
-    
-    // #### SOURCE ####
-    return (
-        <></>
     )
 }
 

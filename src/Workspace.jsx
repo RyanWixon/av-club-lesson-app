@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Modes } from './enums'
+import { Modes, Edges } from './enums'
 import deleteIcon from './assets/deleteIcon.png'
 import './Workspace.css'
 
@@ -73,6 +73,17 @@ function Workspace({ appState, workspaceState, setWorkspaceState }) {
     }));
   }
 
+  const getEdgeColorString = (edgeState) => {
+    switch (edgeState) {
+      case Edges.HDMI: return 'red';
+      case Edges.XLR: return 'blue';
+      case Edges.USB: return 'black';
+      case Edges.Ethernet: return 'green';
+      case Edges.WiFi: return 'yellow';
+      default: return 'gray';
+    }
+  } 
+
   // #### SOURCE ####
   useEffect(() => {
     const updateSize = () => {
@@ -104,12 +115,13 @@ function Workspace({ appState, workspaceState, setWorkspaceState }) {
       onMouseLeave={handleMouseLeave}
     >
       <svg className='edge-layer'>
-        <GhostEdge ghostEdgeState={ghostEdge}/>
+        <GhostEdge ghostEdgeState={ghostEdge} color={getEdgeColorString(appState.edge)}/>
         {edges.map(edge => 
           <Edge
             key={`${edge.deviceid1} - ${edge.deviceid2}`}
             device1State={devices.find(device => device.id === edge.deviceid1)}
             device2State={devices.find(device => device.id === edge.deviceid2)}
+            color={edge.edgeColor}
           />
         )}
       </svg>
@@ -182,11 +194,28 @@ function Device({ appState, workspaceRef, workspaceState, setWorkspaceState, dev
         if (duplicate) return prev;
         return {
           ...prev,
-          edges: [...prev.edges, { deviceid1: edgeStartID, deviceid2: deviceState.id }]
+          edges: [...prev.edges, { 
+            deviceid1: edgeStartID, 
+            deviceid2: deviceState.id, 
+            edgeType: appState.edge, 
+            edgeColor: getEdgeColorString(appState.edge) 
+          }]
         };
       });
     }
   }
+
+  // #### HELPER FUNCTIONS ####
+  const getEdgeColorString = (edgeState) => {
+    switch (edgeState) {
+      case Edges.HDMI: return 'red';
+      case Edges.XLR: return 'blue';
+      case Edges.USB: return 'black';
+      case Edges.Ethernet: return 'green';
+      case Edges.WiFi: return 'yellow';
+      default: return 'gray';
+    }
+  } 
 
   // #### SOURCE ####
   return (
@@ -225,7 +254,7 @@ function Device({ appState, workspaceRef, workspaceState, setWorkspaceState, dev
 }
 
 // component representing a connection between 2 devices created in the workspace
-function Edge({ device1State, device2State }) {
+function Edge({ device1State, device2State, color }) {
   
   // #### SOURCE ####
   return (
@@ -234,14 +263,14 @@ function Edge({ device1State, device2State }) {
       x2={device2State.position.x + device2State.image.width / 2}
       y1={device1State.position.y + device1State.image.height / 2}
       y2={device2State.position.y + device2State.image.height / 2}
-      stroke='black'
+      stroke={color}
       strokeWidth={5}
     />
   );
 }
 
 // component representing a fake edge which follows the user's mouse as they drag from 1 device to another
-function GhostEdge({ ghostEdgeState }) {
+function GhostEdge({ ghostEdgeState, color }) {
 
   // #### SOURCE ####  
   return ghostEdgeState.visible ? (
@@ -250,7 +279,7 @@ function GhostEdge({ ghostEdgeState }) {
       x2={ghostEdgeState.position.x2}
       y1={ghostEdgeState.position.y1}
       y2={ghostEdgeState.position.y2}
-      stroke='black'
+      stroke={color}
       strokeWidth={5}
       opacity={0.33}
     />

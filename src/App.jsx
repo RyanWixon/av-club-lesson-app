@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { Modes, Edges } from './enums'
-import videoCamera from './assets/videoCamera.png'
-import laptop from './assets/laptop.png'
 import './App.css'
 
 import Workspace from './Workspace'
+import DevicePanel from './DevicePanel'
 import ControlPanel from './ControlPanel'
 
 // top level component for the app
@@ -53,8 +52,7 @@ function App() {
         workspaceState={workspaceState} 
         setWorkspaceState={setWorkspaceState} 
       />
-      <button onClick={() => addDevice(videoCamera, 100, 100)}>Add a new video camera</button>
-      <button onClick={() => addDevice(laptop, 100, 100)}>Add a new laptop</button>
+      <DevicePanel appState={appState} addDevice={addDevice}/>
       <ControlPanel appState={appState} setAppState={setAppState} />
     </>
   )

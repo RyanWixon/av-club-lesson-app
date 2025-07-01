@@ -1,9 +1,12 @@
 .workspace {
-    width: 60vw;
-    height: 60vh;
+    top: 100px;
+    left: 100px;
+    right: 25%;
+    bottom: 100px;
+    position: absolute;
+    overflow: hidden;
+
     background-color: lightgrey;
-    position: relative;
-    margin: auto;
 }
 
 .edge-layer {

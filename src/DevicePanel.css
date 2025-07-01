@@ -1,0 +1,24 @@
+.device-panel {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100px;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.device-button {
+    width: 75px;
+    height: 75px;
+}
+
+.device-button-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
