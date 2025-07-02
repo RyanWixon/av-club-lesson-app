@@ -23,7 +23,7 @@ function App() {
   });
 
   // #### HELPER FUNCTIONS ####
-  const addDevice = (path, sourceWidth, sourceHeight) => {
+  const addDevice = (path, width, height) => {
     setWorkspaceState(prev => {
       let nextID = 0;
       const existingIDs = new Set(prev.devices.map(device => device.id));
@@ -34,7 +34,7 @@ function App() {
         ...prev,
         devices: [...prev.devices, {
           id: nextID,
-          image: { src: path, width: sourceWidth, height: sourceHeight },
+          image: { src: path, width: width, height: height },
           position: { x: 50, y: 50 },
           offset: { x: 0, y: 0 },
           dragging: false

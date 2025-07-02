@@ -229,6 +229,8 @@ function Device({ appState, workspaceRef, workspaceState, setWorkspaceState, dev
         src={deviceState.image.src}
         draggable={false}
         style={{
+          width: deviceState.image.width,
+          height: deviceState.image.height,
           left: deviceState.position.x,
           top: deviceState.position.y,
           position: 'absolute',
