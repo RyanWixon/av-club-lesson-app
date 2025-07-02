@@ -1,5 +1,8 @@
-import videoCamera from './assets/videoCamera.png'
 import laptop from './assets/laptop.png'
+import captureCard from './assets/captureCard.png'
+import videoCamera from './assets/videoCamera.png'
+import headset from './assets/headset.png'
+import audioMixer from './assets/audioMixer.png'
 
 import './DevicePanel.css'
 
@@ -8,9 +11,12 @@ function DevicePanel({ appState, addDevice }) {
     // #### SOURCE ####
     return (
         <div className='device-panel'>
-            <div>
+            <div className='device-panel-devices'>
                 <DeviceButton image={videoCamera} addDevice={addDevice} />
+                <DeviceButton image={captureCard} addDevice={addDevice} />
                 <DeviceButton image={laptop} addDevice={addDevice} />
+                <DeviceButton image={headset} addDevice={addDevice} />
+                <DeviceButton image={audioMixer} addDevice={addDevice} />
             </div>
         </div>
     )

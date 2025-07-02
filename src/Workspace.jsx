@@ -243,7 +243,7 @@ function Device({ appState, workspaceRef, workspaceState, setWorkspaceState, dev
         draggable={false}
         style={{
           left: deviceState.position.x + deviceState.image.width - 10,
-          top: deviceState.position.y + 10,
+          top: deviceState.position.y - 10,
           position: 'absolute',
           opacity: hovering ? 1 : 0
         }}
