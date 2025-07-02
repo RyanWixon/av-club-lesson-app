@@ -20,10 +20,10 @@ function Workspace({ appState, workspaceState, setWorkspaceState, ghostDeviceSta
   const handleMouseUp = (e) => {
     if (mode === Modes.Dragging) dropAllDevices();
     if (mode === Modes.Connecting) setWorkspaceState(prev => ({ ...prev, ghostEdge: {...prev.ghostEdge, visible: false}, edgeStartID: -1 }));
+    
+    // add new device if it was being dragged, and update counts
     if (ghostDeviceState.visible) {
       const bounds = workspaceRef.current.getBoundingClientRect();
-      console.log(bounds.right);
-      console.log(e.clientX);
       let newX = Math.max(0 + ghostDeviceState.image.width * 0.1, 
                  Math.min(bounds.right - bounds.left - ghostDeviceState.image.width * 1.1, e.clientX - bounds.left - ghostDeviceState.image.width / 2));
       let newY = Math.max(0 + ghostDeviceState.image.height * 0.1, 
@@ -75,10 +75,11 @@ function Workspace({ appState, workspaceState, setWorkspaceState, ghostDeviceSta
     }
   }
 
-  const removeDevice = (id) => {
+  const removeDevice = (id, image) => {
     setWorkspaceState(prev => ({
       ...prev,
       devices: prev.devices.filter(device => device.id !== id),
+      deviceCounts: { ...prev.deviceCounts, [image]: prev.deviceCounts[image] - 1 },
       edges: prev.edges.filter(edge => edge.deviceid1 !== id && edge.deviceid2 !== id)
     }));
   }
@@ -196,6 +197,8 @@ function Device({ appState, workspaceRef, workspaceState, setWorkspaceState, dev
 
   const handleMouseUp = () => {
     if (mode === Modes.Connecting && edgeStartID !== -1 && edgeStartID !== deviceState.id) {
+      
+      // add a new edge between this device and it's origin device if it is valid and does not already exist
       setWorkspaceState(prev => {
         const duplicate = prev.edges.some(edge =>
           (edge.deviceid1 === edgeStartID && edge.deviceid2 === deviceState.id) ||
@@ -259,7 +262,7 @@ function Device({ appState, workspaceRef, workspaceState, setWorkspaceState, dev
           position: 'absolute',
           opacity: hovering ? 1 : 0
         }}
-        onClick={() => removeDevice(deviceState.id)}
+        onClick={() => removeDevice(deviceState.id, deviceState.image.src)}
       />
     </div>
   );

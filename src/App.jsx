@@ -2,6 +2,12 @@ import { useState } from 'react'
 import { Modes, Edges } from './enums'
 import './App.css'
 
+import videoCamera from './assets/videoCamera.png'
+import captureCard from './assets/captureCard.png'
+import laptop from './assets/laptop.png'
+import headset from './assets/headset.png'
+import audioMixer from './assets/audioMixer.png'
+
 import Workspace from './Workspace'
 import DevicePanel from './DevicePanel'
 import ControlPanel from './ControlPanel'
@@ -16,6 +22,13 @@ function App() {
   });
   const [workspaceState, setWorkspaceState] = useState({
     devices: [],
+    deviceCounts: {
+      [videoCamera]: 0,
+      [captureCard]: 0,
+      [laptop]: 0,
+      [headset]: 0,
+      [audioMixer]: 0
+    },
     edges: [],
     size: { width: 0, height: 0 },
     ghostEdge: { position: { x1: 0, x2: 0, y1: 0, y2: 0 }, visible: false },
@@ -32,18 +45,17 @@ function App() {
     setWorkspaceState(prev => {
       let nextID = 0;
       const existingIDs = new Set(prev.devices.map(device => device.id));
-      while (existingIDs.has(nextID)) {
-        nextID++;
-      }
+      while (existingIDs.has(nextID)) nextID++;
       return {
         ...prev,
-        devices: [...prev.devices, {
+        devices: [ ...prev.devices, {
           id: nextID,
           image: { src: path, width: width, height: height },
           position: { x: x, y: y },
           offset: { x: 0, y: 0 },
           dragging: false
-        }]
+        }],
+        deviceCounts: { ...prev.deviceCounts, [path]: prev.deviceCounts[path] + 1 || 0}
       };
     });
   };
@@ -68,7 +80,7 @@ function App() {
         ghostDeviceState={ghostDeviceState}
         addDevice={addDevice}
       />
-      <DevicePanel appState={appState} addDevice={addDevice} ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState} />
+      <DevicePanel workspaceState={workspaceState} ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState} />
       <ControlPanel appState={appState} setAppState={setAppState} />
       <GhostDevice ghostDeviceState={ghostDeviceState} />
     </div>

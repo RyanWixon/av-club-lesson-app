@@ -26,8 +26,15 @@
 }
 
 .device-button:hover {
-
     background-color: orange;
+}
+
+.device-button-unusable {
+    width: 75px;
+    height: 75px;
+
+    background-color: lightgray;
+    filter: saturate(0);
 }
 
 .device-button-icon {
