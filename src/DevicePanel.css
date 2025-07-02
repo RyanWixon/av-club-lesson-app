@@ -17,9 +17,17 @@
     align-items: center;
 }
 
-.device-button {
+.device-button,
+.device-button-ghost-held {
     width: 75px;
     height: 75px;
+    transition: background-color 0.2s ease;
+    cursor: grab;
+}
+
+.device-button:hover {
+
+    background-color: orange;
 }
 
 .device-button-icon {

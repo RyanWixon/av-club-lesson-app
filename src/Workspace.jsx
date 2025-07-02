@@ -4,7 +4,7 @@ import deleteIcon from './assets/deleteIcon.png'
 import './Workspace.css'
 
 // component representing and handling the workspace, in which devices can be placed, moved, and connected
-function Workspace({ appState, workspaceState, setWorkspaceState }) {
+function Workspace({ appState, workspaceState, setWorkspaceState, ghostDeviceState, addDevice}) {
   
   // #### STATES AND REFS ####
   const { mode } = appState;
@@ -17,9 +17,19 @@ function Workspace({ appState, workspaceState, setWorkspaceState }) {
     if (mode === Modes.Connecting) moveGhostEdge(e);
   }
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e) => {
     if (mode === Modes.Dragging) dropAllDevices();
     if (mode === Modes.Connecting) setWorkspaceState(prev => ({ ...prev, ghostEdge: {...prev.ghostEdge, visible: false}, edgeStartID: -1 }));
+    if (ghostDeviceState.visible) {
+      const bounds = workspaceRef.current.getBoundingClientRect();
+      console.log(bounds.right);
+      console.log(e.clientX);
+      let newX = Math.max(0 + ghostDeviceState.image.width * 0.1, 
+                 Math.min(bounds.right - bounds.left - ghostDeviceState.image.width * 1.1, e.clientX - bounds.left - ghostDeviceState.image.width / 2));
+      let newY = Math.max(0 + ghostDeviceState.image.height * 0.1, 
+                 Math.min(bounds.bottom - bounds.top - ghostDeviceState.image.height * 1.1, e.clientY - bounds.top - ghostDeviceState.image.height / 2));
+      addDevice(ghostDeviceState.image.src, ghostDeviceState.image.width, ghostDeviceState.image.height, newX, newY);
+    }
   }
 
   const handleMouseLeave = () => {
