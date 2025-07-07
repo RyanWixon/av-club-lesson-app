@@ -11,6 +11,7 @@ import audioMixer from './assets/audioMixer.png'
 import Workspace from './Workspace'
 import DevicePanel from './DevicePanel'
 import ControlPanel from './ControlPanel'
+import RightPanel from './RightPanel'
 
 // top level component for the app
 function App() {
@@ -83,6 +84,7 @@ function App() {
       <DevicePanel workspaceState={workspaceState} ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState} />
       <ControlPanel appState={appState} setAppState={setAppState} />
       <GhostDevice ghostDeviceState={ghostDeviceState} />
+      <RightPanel />
     </div>
   )
 }

@@ -15,7 +15,7 @@ function DevicePanel({ workspaceState, ghostDeviceState, setGhostDeviceState }) 
             ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState}/>,
         <DeviceButton key={1} image={captureCard} width={100} height={60} workspaceState={workspaceState}
             ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState}/>,
-        <DeviceButton key={2} image={laptop} width={100} height={90} workspaceState={workspaceState}
+        <DeviceButton key={2} image={laptop} width={110} height={90} workspaceState={workspaceState}
             ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState}/>,
         <DeviceButton key={3} image={headset} width={100} height={85} workspaceState={workspaceState}
             ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState}/>,
