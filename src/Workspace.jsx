@@ -4,7 +4,7 @@ import deleteIcon from './assets/deleteIcon.png'
 import './Workspace.css'
 
 // component representing and handling the workspace, in which devices can be placed, moved, and connected
-function Workspace({ appState, workspaceState, setWorkspaceState, ghostDeviceState, addDevice}) {
+function Workspace({ appState, workspaceState, setWorkspaceState, ghostDeviceState}) {
   
   // #### STATES AND REFS ####
   const { mode } = appState;
@@ -38,6 +38,36 @@ function Workspace({ appState, workspaceState, setWorkspaceState, ghostDeviceSta
   }
 
   // #### HELPER FUNCTIONS ####
+  const addDevice = (path, width, height, x, y) => {
+    setWorkspaceState(prev => {
+      let nextID = 0;
+      const existingIDs = new Set(prev.devices.map(device => device.id));
+      while (existingIDs.has(nextID)) nextID++;
+      return {
+        ...prev,
+        devices: [ ...prev.devices, {
+          id: nextID,
+          image: { src: path, width: width, height: height },
+          position: { x: x, y: y },
+          offset: { x: 0, y: 0 },
+          dragging: false
+        }],
+        deviceCounts: { ...prev.deviceCounts, [path]: prev.deviceCounts[path] + 1 || 0}
+      };
+    });
+    console.log("Change Made: Added Device")
+  };
+
+  const removeDevice = (id, image) => {
+    setWorkspaceState(prev => ({
+      ...prev,
+      devices: prev.devices.filter(device => device.id !== id),
+      deviceCounts: { ...prev.deviceCounts, [image]: prev.deviceCounts[image] - 1 },
+      edges: prev.edges.filter(edge => edge.deviceid1 !== id && edge.deviceid2 !== id)
+    }));
+    console.log("Change Made: Removed Device");
+  }
+
   const moveDraggingDevices = (e) => {
     setWorkspaceState(prev => ({
       ...prev,
@@ -73,15 +103,6 @@ function Workspace({ appState, workspaceState, setWorkspaceState, ghostDeviceSta
         }
       }));
     }
-  }
-
-  const removeDevice = (id, image) => {
-    setWorkspaceState(prev => ({
-      ...prev,
-      devices: prev.devices.filter(device => device.id !== id),
-      deviceCounts: { ...prev.deviceCounts, [image]: prev.deviceCounts[image] - 1 },
-      edges: prev.edges.filter(edge => edge.deviceid1 !== id && edge.deviceid2 !== id)
-    }));
   }
 
   const getEdgeColorString = (edgeState) => {
@@ -198,7 +219,7 @@ function Device({ appState, workspaceRef, workspaceState, setWorkspaceState, dev
   const handleMouseUp = () => {
     if (mode === Modes.Connecting && edgeStartID !== -1 && edgeStartID !== deviceState.id) {
       
-      // add a new edge between this device and it's origin device if it is valid and does not already exist
+      // add a new edge between this device and its origin device if it is valid and does not already exist
       setWorkspaceState(prev => {
         const duplicate = prev.edges.some(edge =>
           (edge.deviceid1 === edgeStartID && edge.deviceid2 === deviceState.id) ||
@@ -215,6 +236,7 @@ function Device({ appState, workspaceRef, workspaceState, setWorkspaceState, dev
           }]
         };
       });
+      console.log("Change Made: Added Edge");
     }
   }
 

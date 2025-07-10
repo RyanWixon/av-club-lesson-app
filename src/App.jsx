@@ -42,24 +42,7 @@ function App() {
   })
 
   // #### HELPER FUNCTIONS ####
-  const addDevice = (path, width, height, x, y) => {
-    setWorkspaceState(prev => {
-      let nextID = 0;
-      const existingIDs = new Set(prev.devices.map(device => device.id));
-      while (existingIDs.has(nextID)) nextID++;
-      return {
-        ...prev,
-        devices: [ ...prev.devices, {
-          id: nextID,
-          image: { src: path, width: width, height: height },
-          position: { x: x, y: y },
-          offset: { x: 0, y: 0 },
-          dragging: false
-        }],
-        deviceCounts: { ...prev.deviceCounts, [path]: prev.deviceCounts[path] + 1 || 0}
-      };
-    });
-  };
+
 
   // #### SOURCE ####
   return (
@@ -79,7 +62,6 @@ function App() {
         workspaceState={workspaceState} 
         setWorkspaceState={setWorkspaceState}
         ghostDeviceState={ghostDeviceState}
-        addDevice={addDevice}
       />
       <DevicePanel workspaceState={workspaceState} ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState} />
       <ControlPanel appState={appState} setAppState={setAppState} />
