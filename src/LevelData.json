@@ -1,0 +1,40 @@
+{
+    "levels": [
+        {
+            "instructions": "Using a WEB CAMERA and LAPTOP, create a simple live stream.",
+            "solution": [
+                { "type": "webcamera", "neighbors": [["laptop", "usb"]] },
+                { "type": "laptop", "neighbors": [["webcamera", "usb"]] }
+            ]
+        },
+        {
+            "instructions": "Using a VIDEO CAMERA, CAPTURE CARD, and LAPTOP, create a simple live stream.",
+            "solution": [
+                { "type": "laptop", "neighbors": [["capturecard", "usb"]] },
+                { "type": "capturecard", "neighbors": [["laptop", "usb"], ["videocamera", "hdmi"]] },
+                { "type": "videocamera", "neighbors": [["capturecard", "hdmi"]] }
+            ]
+        },
+        {
+            "instructions": "Add a simple commentator USB HEADSET to your upgraded live stream kit. \n Use the solution to the previous level as a starting point.",
+            "solution": [
+                { "type": "laptop", "neighbors": [["capturecard", "usb"], ["usbheadset", "usb"]] },
+                { "type": "capturecard", "neighbors": [["laptop", "usb"], ["videocamera", "hdmi"]] },
+                { "type": "videocamera", "neighbors": [["capturecard", "hdmi"]] },
+                { "type": "usbheadset", "neighbors": [["laptop", "usb"]] }
+            ]
+        },
+        {
+            "instructions": "Default Text",
+            "solution": [
+
+            ]
+        },
+        {
+            "instructions": "Default Text",
+            "solution": [
+                
+            ]
+        }
+    ]
+}

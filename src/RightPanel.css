@@ -29,3 +29,21 @@
     
     display: flex;
 }
+
+.text-container {
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.instruction-text {
+
+    width: 80%;
+
+    font-size: 25px;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+}

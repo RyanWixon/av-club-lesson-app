@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { Modes, Edges } from './enums'
 import './App.css'
 
+import webcam from './assets/webcam.png'
+import laptop from './assets/laptop.png'
 import videoCamera from './assets/videoCamera.png'
 import captureCard from './assets/captureCard.png'
-import laptop from './assets/laptop.png'
 import headset from './assets/headset.png'
 import audioMixer from './assets/audioMixer.png'
 
@@ -13,20 +14,25 @@ import DevicePanel from './DevicePanel'
 import ControlPanel from './ControlPanel'
 import RightPanel from './RightPanel'
 
+import levelData from './LevelData.json'
+
 // top level component for the app
 function App() {
 
   // #### STATES ####
   const [appState, setAppState] = useState({
     mode: Modes.Dragging,
-    edge: Edges.HDMI
+    edge: Edges.HDMI,
+    levelNum: 0,
+    levelSolution: levelData.levels[0].solution
   });
   const [workspaceState, setWorkspaceState] = useState({
     devices: [],
     deviceCounts: {
+      [webcam]: 0,
+      [laptop]: 0,
       [videoCamera]: 0,
       [captureCard]: 0,
-      [laptop]: 0,
       [headset]: 0,
       [audioMixer]: 0
     },
@@ -40,9 +46,6 @@ function App() {
     position: {x: 0, y: 0},
     visible: false
   })
-
-  // #### HELPER FUNCTIONS ####
-
 
   // #### SOURCE ####
   return (
@@ -58,15 +61,19 @@ function App() {
     >
       <Workspace
         appState={appState}
-        setAppState={setAppState} 
+        setAppState={setAppState}
         workspaceState={workspaceState} 
         setWorkspaceState={setWorkspaceState}
         ghostDeviceState={ghostDeviceState}
       />
-      <DevicePanel workspaceState={workspaceState} ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState} />
+      <DevicePanel 
+        workspaceState={workspaceState} 
+        ghostDeviceState={ghostDeviceState} 
+        setGhostDeviceState={setGhostDeviceState} 
+      />
       <ControlPanel appState={appState} setAppState={setAppState} />
       <GhostDevice ghostDeviceState={ghostDeviceState} />
-      <RightPanel />
+      <RightPanel appState={appState}/>
     </div>
   )
 }

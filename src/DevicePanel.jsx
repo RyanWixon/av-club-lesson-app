@@ -1,8 +1,10 @@
+import { Devices } from './enums'
 import { useState, useEffect, useRef } from 'react'
 
+import webcam from './assets/webcam.png'
 import laptop from './assets/laptop.png'
-import captureCard from './assets/captureCard.png'
 import videoCamera from './assets/videoCamera.png'
+import captureCard from './assets/captureCard.png'
 import headset from './assets/headset.png'
 import audioMixer from './assets/audioMixer.png'
 
@@ -11,15 +13,17 @@ import './DevicePanel.css'
 function DevicePanel({ workspaceState, ghostDeviceState, setGhostDeviceState }) {
 
     const devices = [
-        <DeviceButton key={0} image={videoCamera} width={100} height={80} workspaceState={workspaceState} 
+        <DeviceButton key={0} deviceType={Devices.WebCamera} image={webcam} width={100} height={105} workspaceState={workspaceState} 
             ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState}/>,
-        <DeviceButton key={1} image={captureCard} width={100} height={60} workspaceState={workspaceState}
+        <DeviceButton key={1} deviceType={Devices.Laptop} image={laptop} width={110} height={90} workspaceState={workspaceState}
             ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState}/>,
-        <DeviceButton key={2} image={laptop} width={110} height={90} workspaceState={workspaceState}
+        <DeviceButton key={2} deviceType={Devices.VideoCamera} image={videoCamera} width={100} height={80} workspaceState={workspaceState} 
             ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState}/>,
-        <DeviceButton key={3} image={headset} width={100} height={85} workspaceState={workspaceState}
+        <DeviceButton key={3} deviceType={Devices.CaptureCard} image={captureCard} width={100} height={60} workspaceState={workspaceState}
             ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState}/>,
-        <DeviceButton key={4} image={audioMixer} width={100} height={90} workspaceState={workspaceState}
+        <DeviceButton key={4} deviceType={Devices.USBHeadset} image={headset} width={100} height={85} workspaceState={workspaceState}
+            ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState}/>,
+        <DeviceButton key={5} deviceType={Devices.AudioMixer} image={audioMixer} width={100} height={90} workspaceState={workspaceState}
             ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState}/>
     ];
     const [devicesBounds, setDevicesBounds] = useState([0, devices.length]);
@@ -84,7 +88,7 @@ function DevicePanel({ workspaceState, ghostDeviceState, setGhostDeviceState }) 
     )
 }
 
-function DeviceButton({ image, width, height, workspaceState, ghostDeviceState, setGhostDeviceState }) {
+function DeviceButton({ deviceType, image, width, height, workspaceState, ghostDeviceState, setGhostDeviceState }) {
     
     // #### SOURCE ####
     if (workspaceState.deviceCounts[image] < 3) {
@@ -92,6 +96,7 @@ function DeviceButton({ image, width, height, workspaceState, ghostDeviceState, 
             <button 
                 className={!ghostDeviceState.visible ? 'device-button' : 'device-button-ghost-held'} 
                 onMouseDown={(e) => setGhostDeviceState({
+                    deviceType: deviceType,
                     image: {src: image, width: width, height: height},
                     position: {x: e.clientX - width / 2, y: e.clientY - height / 2},
                     visible: true

@@ -1,16 +1,21 @@
-import { act, useState } from 'react'
+import { useState } from 'react'
 
 import colorBars from './assets/colorBars.png'
 import placeholder from './assets/sports.gif'
 
+import levelData from './LevelData.json'
+
 import './RightPanel.css'
 
-function RightPanel() {
+function RightPanel({ appState }) {
 
     // #### SOURCE ####
     return (
         <div className="right-panel">
             <StreamFeed />
+            <div className="text-container">
+                <h1 className="instruction-text">{levelData.levels[appState.levelNum].instructions}</h1>
+            </div>
         </div>
     )
 }
@@ -29,8 +34,6 @@ function StreamFeed() {
             </div>
             <button onClick={() => {setActive(!active)}}>Test the stream</button>
         </>
-
-
     )
 }
 
