@@ -13,6 +13,7 @@
 .stream-feed {
     width: 275px;
     height: 175px;
+    min-height: 175px;
     border-radius: 10px;
 
     display: flex;

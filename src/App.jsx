@@ -24,7 +24,9 @@ function App() {
     mode: Modes.Dragging,
     edge: Edges.HDMI,
     levelNum: 0,
-    levelSolution: levelData.levels[0].solution
+    levelSolution: levelData.levels[0].solution,
+    levelSolved: false,
+    playingWinVideo: false
   });
   const [workspaceState, setWorkspaceState] = useState({
     devices: [],
@@ -59,6 +61,19 @@ function App() {
         setGhostDeviceState(prev => ({ ...prev, visible: false }))
       }}
     >
+      {appState.playingWinVideo && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0)', // or 0.0 if fully transparent
+            zIndex: 9999
+          }}
+        />
+      )}
       <Workspace
         appState={appState}
         setAppState={setAppState}
@@ -73,7 +88,7 @@ function App() {
       />
       <ControlPanel appState={appState} setAppState={setAppState} />
       <GhostDevice ghostDeviceState={ghostDeviceState} />
-      <RightPanel appState={appState}/>
+      <RightPanel appState={appState} setAppState={setAppState} />
     </div>
   )
 }

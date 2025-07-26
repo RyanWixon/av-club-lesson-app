@@ -11,20 +11,33 @@ import './Workspace.css'
 // component representing and handling the workspace, in which devices can be placed, moved, and connected
 function Workspace({ appState, setAppState, workspaceState, setWorkspaceState, ghostDeviceState}) {
   
-  // #### STATES AND REFS ####
+  // #### STATES, REFS AND EFFECTS ####
   const { mode } = appState;
   const { devices, edges, size, ghostEdge } = workspaceState;
   const workspaceRef = useRef(null);
 
+  // if the current board is the solution, trigger the win video
   useEffect(() => {
     if (checkSolution(workspaceState, appState.levelSolution)) {
-      setAppState(prev => ({
-        ...prev,
-        levelNum: prev.levelNum + 1,
-        levelSolution: levelData.levels[prev.levelNum + 1].solution
-      }));
+        setAppState(prev => ({
+          ...prev,
+          levelSolved: true,
+          playingWinVideo: true
+        }));
     }
   }, [devices, edges]);
+
+  // if the win video has finished playing, go to the next level
+  useEffect(() => {
+    if (appState.levelSolved && !appState.playingWinVideo) {
+        setAppState(prev => ({
+          ...prev,
+          levelNum: prev.levelNum + 1,
+          levelSolution: levelData.levels[prev.levelNum + 1].solution,
+          levelSolved: false
+        }));
+    }
+  }, [appState.playingWinVideo])
 
   // #### TOP LEVEL EVENT HANDLERS ####
   const handleMouseMove = (e) => {

@@ -16,7 +16,7 @@
             ]
         },
         {
-            "instructions": "Add a simple commentator USB HEADSET to your upgraded live stream kit. \n Use the solution to the previous level as a starting point.",
+            "instructions": "Add a simple commentator USB HEADSET to your upgraded live stream kit.\n\nUse the solution to the previous level as a starting point.",
             "solution": [
                 { "type": "laptop", "neighbors": [["capturecard", "usb"], ["usbheadset", "usb"]] },
                 { "type": "capturecard", "neighbors": [["laptop", "usb"], ["videocamera", "hdmi"]] },
@@ -25,16 +25,22 @@
             ]
         },
         {
-            "instructions": "Default Text",
+            "instructions": "Now create a multi-camera live stream using a second VIDEO CAMERA and CAPTURE CARD.\n\nUse the solution to the previous level as a starting point.",
             "solution": [
-
+                { "type": "videocamera", "neighbors": [["capturecard", "hdmi"]] },
+                { "type": "videocamera", "neighbors": [["capturecard", "hdmi"]] },
+                { "type": "capturecard", "neighbors": [["videocamera", "hdmi"], ["laptop", "usb"]] },
+                { "type": "capturecard", "neighbors": [["videocamera", "hdmi"], ["laptop", "usb"]] },
+                { "type": "laptop", "neighbors": [["capturecard", "usb"], ["capturecard", "usb"], ["usbheadset", "usb"]] },
+                { "type": "usbheadset", "neighbors": [["laptop", "usb"]] }
             ]
         },
         {
-            "instructions": "Default Text",
+            "instructions": "You have completed the simulation.",
             "solution": [
-                
-            ]
+                { "type": "webcamera", "neighbors": [["webcamera", "hdmi"]] }
+            ],
+            "_comment": "The above solution is intentionally impossible; this is the easiest way to handle the end of the simulation. Don't remove this if you edit the levels."
         }
     ]
 }
