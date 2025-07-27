@@ -14,6 +14,8 @@ import DevicePanel from './DevicePanel'
 import ControlPanel from './ControlPanel'
 import RightPanel from './RightPanel'
 
+import resizeImage from './assets/resize.png'
+
 import levelData from './LevelData.json'
 
 // top level component for the app
@@ -23,10 +25,12 @@ function App() {
   const [appState, setAppState] = useState({
     mode: Modes.Dragging,
     edge: Edges.HDMI,
+    playerName: "Player 1",
+    lessonNum: 0,
     levelNum: 0,
     levelSolution: levelData.levels[0].solution,
     levelSolved: false,
-    playingWinVideo: false
+    playingWinVideo: false,
   });
   const [workspaceState, setWorkspaceState] = useState({
     devices: [],
@@ -61,19 +65,42 @@ function App() {
         setGhostDeviceState(prev => ({ ...prev, visible: false }))
       }}
     >
+      {(window.innerWidth < 875 || window.innerHeight < 500) && (
+        <div
+          style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "black", 
+            zIndex: 9999,
+            
+            display: "flex",
+            'flex-direction': "column",
+            'justify-content': "center",
+            'align-items': "center",
+          }}
+        >
+          <img src={resizeImage} width={150} height={100}></img>
+          <h1 className="score-text" style={{padding: "0px", textAlign: "center"}}>This app works best with a larger screen size.</h1>
+          <h1 className="score-text" style={{padding: "0px", textAlign: "center"}}>Please resize your window or switch to a device with a larger screen.</h1>
+        </div>
+      )}
       {appState.playingWinVideo && (
         <div
           style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0)', // or 0.0 if fully transparent
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "0.0",
             zIndex: 9999
           }}
         />
       )}
+      <div className="score">
+        <div style={{display: "flex", justifyContent: "left", width: "100%"}}>
+          <h1 className="score-text">{appState.playerName}</h1>
+        </div>
+        <div style={{display: "flex", justifyContent: "right", minWidth: "270px"}}>
+          <h1 className="score-text">Lesson {appState.lessonNum + 1}</h1>
+          <h1 className="score-text">Level {appState.levelNum + 1}/{levelData.levels.length - 1}</h1>
+        </div>
+      </div>
       <Workspace
         appState={appState}
         setAppState={setAppState}

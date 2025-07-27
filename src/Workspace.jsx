@@ -85,10 +85,6 @@ function Workspace({ appState, setAppState, workspaceState, setWorkspaceState, g
         deviceCounts: { ...prev.deviceCounts, [path]: prev.deviceCounts[path] + 1 || 0}
       };
 
-      // if (checkSolution(retval, appState.levelSolution)) {
-      //   setAppState(prev => ({ ...appState, levelNum: prev.levelNum + 1, levelSolution: levelData.levels[prev.levelNum + 1].solution}));
-      //   console.log('add device iterated level');
-      // }
       return retval;
     });
   };
@@ -102,10 +98,6 @@ function Workspace({ appState, setAppState, workspaceState, setWorkspaceState, g
           edges: prev.edges.filter(edge => edge.deviceid1 !== id && edge.deviceid2 !== id)
       }
 
-      // if (checkSolution(retval, appState.levelSolution)) {
-      //   setAppState(prev => ({ ...appState, levelNum: prev.levelNum + 1, levelSolution: levelData.levels[prev.levelNum + 1].solution}));
-      //   console.log('remove device iterated level');
-      // }
       return retval;
     });
   }
@@ -192,10 +184,11 @@ function Workspace({ appState, setAppState, workspaceState, setWorkspaceState, g
         <GhostEdge ghostEdgeState={ghostEdge} color={getEdgeColorString(appState.edge)}/>
         {edges.map(edge => 
           <Edge
-            key={`${edge.deviceid1} - ${edge.deviceid2}`}
+            key={`${edge.deviceid1} - ${edge.deviceid2} - ${edge.edgeType}`}
             device1State={devices.find(device => device.id === edge.deviceid1)}
             device2State={devices.find(device => device.id === edge.deviceid2)}
             color={edge.edgeColor}
+            numEdgeBetweenDevices={edge.numEdgeBetweenDevices}
           />
         )}
       </svg>
@@ -216,7 +209,7 @@ function Workspace({ appState, setAppState, workspaceState, setWorkspaceState, g
 }
 
 // component representing an individual device created inside the workspace
-function Device({ appState, setAppState, workspaceRef, workspaceState, setWorkspaceState, deviceState, removeDevice }) {
+function Device({ appState, workspaceRef, workspaceState, setWorkspaceState, deviceState, removeDevice }) {
   
   // #### STATES ####
   const { mode } = appState;
@@ -265,11 +258,16 @@ function Device({ appState, setAppState, workspaceRef, workspaceState, setWorksp
       // add a new edge between this device and its origin device if it is valid and does not already exist
       setWorkspaceState(prev => {
 
-        const duplicate = prev.edges.some(edge =>
-          (edge.deviceid1 === edgeStartID && edge.deviceid2 === deviceState.id) ||
-          (edge.deviceid1 === deviceState.id && edge.deviceid2 === edgeStartID)
-        );
-        if (duplicate) return prev;
+        // check for duplicate edges, and don't allow a 4th edge if there are already 3 between these two devices
+        let connectionsBetweenThese2 = 0;
+        for (var edge of prev.edges) {
+          if ((edge.deviceid1 === edgeStartID && edge.deviceid2 === deviceState.id) ||
+              (edge.deviceid1 === deviceState.id && edge.deviceid2 === edgeStartID)) {
+            connectionsBetweenThese2 += 1;
+            if (edge.edgeType === appState.edge) return prev;
+          }
+        }
+        if (connectionsBetweenThese2 === 3) return prev;
         
         const retval = {
           ...prev,
@@ -277,14 +275,11 @@ function Device({ appState, setAppState, workspaceRef, workspaceState, setWorksp
             deviceid1: edgeStartID, 
             deviceid2: deviceState.id, 
             edgeType: appState.edge, 
-            edgeColor: getEdgeColorString(appState.edge) 
+            edgeColor: getEdgeColorString(appState.edge),
+            numEdgeBetweenDevices: connectionsBetweenThese2
           }]
         };
 
-        // if (checkSolution(retval, appState.levelSolution)) {
-        //   console.log('add edge iterated level');
-        //   setAppState(prev => ({ ...appState, levelNum: prev.levelNum + 1, levelSolution: levelData.levels[prev.levelNum + 1].solution}));
-        // }
         return retval;
       });
     }
@@ -341,15 +336,23 @@ function Device({ appState, setAppState, workspaceRef, workspaceState, setWorksp
 }
 
 // component representing a connection between 2 devices created in the workspace
-function Edge({ device1State, device2State, color }) {
+function Edge({ device1State, device2State, color, numEdgeBetweenDevices }) {
+
+  let offset = 0;
+  if (numEdgeBetweenDevices === 1) {
+    offset = 10;
+  }
+  if (numEdgeBetweenDevices === 2) {
+    offset = -10;
+  }
   
   // #### SOURCE ####
   return (
     <line
-      x1={device1State.position.x + device1State.image.width / 2}
-      x2={device2State.position.x + device2State.image.width / 2}
-      y1={device1State.position.y + device1State.image.height / 2}
-      y2={device2State.position.y + device2State.image.height / 2}
+      x1={device1State.position.x + device1State.image.width / 2 + offset}
+      x2={device2State.position.x + device2State.image.width / 2 + offset}
+      y1={device1State.position.y + device1State.image.height / 2 + offset}
+      y2={device2State.position.y + device2State.image.height / 2 + offset}
       stroke={color}
       strokeWidth={5}
     />

@@ -10,8 +10,10 @@ import audioMixer from './assets/audioMixer.png'
 
 import './DevicePanel.css'
 
+// represents the options at the left side of the screen which allow the user to drag and drop different devices into the workspace
 function DevicePanel({ workspaceState, ghostDeviceState, setGhostDeviceState }) {
 
+    // #### STATE, REFS AND EFFECTS ####
     const devices = [
         <DeviceButton key={0} deviceType={Devices.WebCamera} image={webcam} width={100} height={105} workspaceState={workspaceState} 
             ghostDeviceState={ghostDeviceState} setGhostDeviceState={setGhostDeviceState}/>,
@@ -28,19 +30,32 @@ function DevicePanel({ workspaceState, ghostDeviceState, setGhostDeviceState }) 
     ];
     const [devicesBounds, setDevicesBounds] = useState([0, devices.length]);
     const devicePanelRef = useRef(null);
+    useEffect(() => {
+        const devicePanelElement = devicePanelRef.current;
+        const observer = new ResizeObserver(() => {
+            updateDeviceBounds(devicePanelElement.clientHeight);
+        });
 
+        if (devicePanelElement) observer.observe(devicePanelElement);
+        return () => observer.disconnect();
+    }, []);
+
+    // called when the user clicks the up button to display more devices
     const moveDevicesUp = () => {
         if (devicesBounds[0] > 0) {
             setDevicesBounds([devicesBounds[0] - 1, devicesBounds[1] - 1]);
         }
     }
 
+    // called when the user clicks the down button to display more devices
     const moveDevicesDown = () => {
         if (devicesBounds[1] < devices.length) {
             setDevicesBounds([devicesBounds[0] + 1, devicesBounds[1] + 1]);
         }
     }
 
+    // called when the workspace size is changed, so that the appropriate number of devices
+    // to display at once can be recalculated
     const updateDeviceBounds = (availableHeight) => {
         setDevicesBounds(prev => {
             let devicesAllowed = Math.floor(Math.min((availableHeight - 50) / 75, devices.length));
@@ -59,6 +74,8 @@ function DevicePanel({ workspaceState, ghostDeviceState, setGhostDeviceState }) 
                 }
             }
             
+            // only return something new if the number of devices actually needs to change; if we don't,
+            // react will get stuck in an infinite loop trying to update things
             if (newBounds[0] !== prev[0] || newBounds[1] !== prev[1]) {
                 return newBounds;
             }
@@ -67,16 +84,6 @@ function DevicePanel({ workspaceState, ghostDeviceState, setGhostDeviceState }) 
     }
 
     // #### SOURCE ####
-    useEffect(() => {
-        const devicePanelElement = devicePanelRef.current;
-        const observer = new ResizeObserver(() => {
-            updateDeviceBounds(devicePanelElement.clientHeight);
-        });
-
-        if (devicePanelElement) observer.observe(devicePanelElement);
-        return () => observer.disconnect();
-    }, []);
-
     return (
         <div className='device-panel' ref={devicePanelRef}>
             <div className='device-panel-devices'>
@@ -88,10 +95,13 @@ function DevicePanel({ workspaceState, ghostDeviceState, setGhostDeviceState }) 
     )
 }
 
+// represents a single device which may be dragged and dropped into the workspace
 function DeviceButton({ deviceType, image, width, height, workspaceState, ghostDeviceState, setGhostDeviceState }) {
     
     // #### SOURCE ####
     if (workspaceState.deviceCounts[image] < 3) {
+        
+        // there are less than 3 devices of this type on the workspace; this button can be used
         return (
             <button 
                 className={!ghostDeviceState.visible ? 'device-button' : 'device-button-ghost-held'} 
@@ -106,6 +116,8 @@ function DeviceButton({ deviceType, image, width, height, workspaceState, ghostD
             </button>
         ) 
     }
+
+    // there are 3 devices of this type on the workspace; this button may not be used until one of them is removed
     return (
         <button 
             className='device-button-unusable'

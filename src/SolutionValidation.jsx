@@ -5,8 +5,8 @@ function checkSolution(workspaceState, solution) {
     // sort solution data
     let sortedSolution = solution.map(node => ({
         type: node.type,
-        neighbors: [...node.neighbors].sort(
-            (a, b) => a[0].localeCompare(b[0]) || a[1].localeCompare(b[1])
+        neighbors: [...node.neighbors].map(n => [n[0], ...n.slice(1).sort()]).sort(
+            (a, b) => a[0].localeCompare(b[0]) || JSON.stringify(a.slice(1)).localeCompare(JSON.stringify(b.slice(1)))
         )
     })).sort((a, b) => a.type.localeCompare(b.type));
 
@@ -14,23 +14,22 @@ function checkSolution(workspaceState, solution) {
     // is a solution, we don't care about extra devices strewn about the workspace
     for (const component of currentGraph) {
         let sortedComponent = component.map(node => ({
-                type: node.type,
-                neighbors: [...node.neighbors].sort(
-                    (a, b) => a[0].localeCompare(b[0]) || a[1].localeCompare(b[1])
-                )
-            })).sort((a, b) => a.type.localeCompare(b.type));
+            type: node.type,
+            neighbors: [...node.neighbors].map(n => [n[0], ...n.slice(1).sort()]).sort(
+                (a, b) => a[0].localeCompare(b[0]) || JSON.stringify(a.slice(1)).localeCompare(JSON.stringify(b.slice(1)))
+            )
+        })).sort((a, b) => a.type.localeCompare(b.type));
         if (checkSolutionSingleComponent(sortedComponent, sortedSolution)) return true;
     }
     return false;
 }
 
-
 // determines if a single component matches a solution
 function checkSolutionSingleComponent(component, solution) {
-    
+
     // if there are different numbers of components, this is not a correct solution
     if (component.length !== solution.length) return false;
-    
+
     for (let i = 0; i < component.length; i++) {
 
         // if type doesn't match, this is not a correct solution
@@ -41,7 +40,14 @@ function checkSolutionSingleComponent(component, solution) {
         const neighbors2 = solution[i].neighbors;
         if (neighbors1.length !== neighbors2.length) return false;
         for (let j = 0; j < neighbors1.length; j++) {
-            if (neighbors1[j][0] !== neighbors2[j][0] || neighbors1[j][1] !== neighbors2[j][1]) return false;
+            const [type1, ...edges1] = neighbors1[j];
+            const [type2, ...edges2] = neighbors2[j];
+
+            if (type1 !== type2) return false;
+            if (edges1.length !== edges2.length) return false;
+            for (let k = 0; k < edges1.length; k++) {
+                if (edges1[k] !== edges2[k]) return false;
+            }
         }
     }
     return true;
@@ -51,10 +57,10 @@ function checkSolutionSingleComponent(component, solution) {
 // each time that graph updates, which is terrible, but doesn't matter much
 // here since the graphs we're working with are very small.
 function buildWorkspaceGraph(devices, edges) {
-    
+
     // adjacency list
-    const deviceMap = new Map(); 
-    const adjacency = new Map(); 
+    const deviceMap = new Map();
+    const adjacency = new Map();
     for (const device of devices) {
         deviceMap.set(device.id, { type: device.deviceType, id: device.id });
         adjacency.set(device.id, []);
@@ -80,15 +86,25 @@ function buildWorkspaceGraph(devices, edges) {
 
             visited.add(currentId);
             const currentDevice = deviceMap.get(currentId);
-            const neighbors = [];
+            const neighborMap = new Map();
 
             for (const neighbor of adjacency.get(currentId)) {
                 const neighborDevice = deviceMap.get(neighbor.id);
-                neighbors.push([neighborDevice.type, neighbor.edgeType]);
+                const key = neighborDevice.type;
+
+                if (!neighborMap.has(key)) {
+                    neighborMap.set(key, new Set());
+                }
+                neighborMap.get(key).add(neighbor.edgeType);
 
                 if (!visited.has(neighbor.id)) {
                     stack.push(neighbor.id);
                 }
+            }
+
+            const neighbors = [];
+            for (const [type, edgeTypes] of neighborMap.entries()) {
+                neighbors.push([type, ...Array.from(edgeTypes).sort()]);
             }
 
             componentNodes.push({ type: currentDevice.type, neighbors: neighbors });

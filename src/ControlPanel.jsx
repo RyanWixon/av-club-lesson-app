@@ -9,6 +9,7 @@ import wifi from './assets/wifi.png'
 
 import './ControlPanel.css'
 
+// represents the options at the bottom of the screen which allow the user to manipulate how they interact with the workspace
 function ControlPanel({ appState, setAppState }) {
     
     // #### SOURCE ####
@@ -29,6 +30,7 @@ function ControlPanel({ appState, setAppState }) {
     )
 }
 
+// represents a button controlling the type of mode the app is in (moving devices or creating edges)
 function ModeButton({ image, setToMode, appState, setAppState }) {
 
     // #### SOURCE ####
@@ -44,6 +46,7 @@ function ModeButton({ image, setToMode, appState, setAppState }) {
     )
 }
 
+// represents a button controlling the type of edge which will be drawn
 function EdgeButton({ image, setToEdge, appState, setAppState }) {
 
     // #### SOURCE ####
