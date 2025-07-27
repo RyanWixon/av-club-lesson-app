@@ -10,6 +10,9 @@ function checkSolution(workspaceState, solution) {
         )
     })).sort((a, b) => a.type.localeCompare(b.type));
 
+    console.log('solution');
+    console.log(sortedSolution);
+
     // sort each component and compare with the solution - if any component matches, this
     // is a solution, we don't care about extra devices strewn about the workspace
     for (const component of currentGraph) {
@@ -19,6 +22,9 @@ function checkSolution(workspaceState, solution) {
                 (a, b) => a[0].localeCompare(b[0]) || JSON.stringify(a.slice(1)).localeCompare(JSON.stringify(b.slice(1)))
             )
         })).sort((a, b) => a.type.localeCompare(b.type));
+
+        console.log('component');
+        console.log(sortedComponent)
         if (checkSolutionSingleComponent(sortedComponent, sortedSolution)) return true;
     }
     return false;
@@ -53,9 +59,9 @@ function checkSolutionSingleComponent(component, solution) {
     return true;
 }
 
-// builds a graph representation of the current workspace - will occur
-// each time that graph updates, which is terrible, but doesn't matter much
-// here since the graphs we're working with are very small.
+// // builds a graph representation of the current workspace - will occur
+// // each time that graph updates, which is terrible, but doesn't matter much
+// // here since the graphs we're working with are very small.
 function buildWorkspaceGraph(devices, edges) {
 
     // adjacency list
@@ -86,25 +92,14 @@ function buildWorkspaceGraph(devices, edges) {
 
             visited.add(currentId);
             const currentDevice = deviceMap.get(currentId);
-            const neighborMap = new Map();
+            const neighbors = [];
 
             for (const neighbor of adjacency.get(currentId)) {
                 const neighborDevice = deviceMap.get(neighbor.id);
-                const key = neighborDevice.type;
-
-                if (!neighborMap.has(key)) {
-                    neighborMap.set(key, new Set());
-                }
-                neighborMap.get(key).add(neighbor.edgeType);
-
+                neighbors.push([neighborDevice.type, neighbor.edgeType]);
                 if (!visited.has(neighbor.id)) {
                     stack.push(neighbor.id);
                 }
-            }
-
-            const neighbors = [];
-            for (const [type, edgeTypes] of neighborMap.entries()) {
-                neighbors.push([type, ...Array.from(edgeTypes).sort()]);
             }
 
             componentNodes.push({ type: currentDevice.type, neighbors: neighbors });
@@ -113,5 +108,6 @@ function buildWorkspaceGraph(devices, edges) {
     }
     return components;
 }
+
 
 export default checkSolution;

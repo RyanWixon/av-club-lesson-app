@@ -98,7 +98,7 @@ function App() {
         </div>
         <div style={{display: "flex", justifyContent: "right", minWidth: "270px"}}>
           <h1 className="score-text">Lesson {appState.lessonNum + 1}</h1>
-          <h1 className="score-text">Level {appState.levelNum + 1}/{levelData.levels.length - 1}</h1>
+          <h1 className="score-text">Level {appState.levelNum + (appState.levelNum < levelData.levels.length - 1 ? 1 : 0)}/{levelData.levels.length - 1}</h1>
         </div>
       </div>
       <Workspace
