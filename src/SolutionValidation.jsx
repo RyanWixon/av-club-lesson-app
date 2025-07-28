@@ -10,9 +10,6 @@ function checkSolution(workspaceState, solution) {
         )
     })).sort((a, b) => a.type.localeCompare(b.type));
 
-    console.log('solution');
-    console.log(sortedSolution);
-
     // sort each component and compare with the solution - if any component matches, this
     // is a solution, we don't care about extra devices strewn about the workspace
     for (const component of currentGraph) {
@@ -23,8 +20,6 @@ function checkSolution(workspaceState, solution) {
             )
         })).sort((a, b) => a.type.localeCompare(b.type));
 
-        console.log('component');
-        console.log(sortedComponent)
         if (checkSolutionSingleComponent(sortedComponent, sortedSolution)) return true;
     }
     return false;

@@ -18,20 +18,32 @@ import resizeImage from './assets/resize.png'
 
 import levelData from './LevelData.json'
 
+  // #### HELPER FUNCTIONS ####
+  const getInitialAppState = () => {
+
+    // TODO: API call to get initial appState information
+    console.log("The simulation is starting; Something should come from the backend");
+
+    let playerName = "playerName"; // change these to the correct values, or leave it as a default and change it below
+    let lessonNum = 1;
+
+    return {
+      mode: Modes.Dragging,
+      edge: Edges.HDMI,
+      playerName: playerName,
+      lessonNum: lessonNum,
+      levelNum: 0,
+      levelSolution: levelData.levels[0].solution,
+      levelSolved: false,
+      playingWinVideo: false,
+    }
+  }
+
 // top level component for the app
 function App() {
 
   // #### STATES ####
-  const [appState, setAppState] = useState({
-    mode: Modes.Dragging,
-    edge: Edges.HDMI,
-    playerName: "Player 1",
-    lessonNum: 0,
-    levelNum: 0,
-    levelSolution: levelData.levels[0].solution,
-    levelSolved: false,
-    playingWinVideo: false,
-  });
+  const [appState, setAppState] = useState(() => getInitialAppState());
   const [workspaceState, setWorkspaceState] = useState({
     devices: [],
     deviceCounts: {
@@ -73,9 +85,9 @@ function App() {
             zIndex: 9999,
             
             display: "flex",
-            'flex-direction': "column",
-            'justify-content': "center",
-            'align-items': "center",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center"
           }}
         >
           <img src={resizeImage} width={150} height={100}></img>
@@ -97,7 +109,7 @@ function App() {
           <h1 className="score-text">{appState.playerName}</h1>
         </div>
         <div style={{display: "flex", justifyContent: "right", minWidth: "270px"}}>
-          <h1 className="score-text">Lesson {appState.lessonNum + 1}</h1>
+          <h1 className="score-text">Lesson {appState.lessonNum}</h1>
           <h1 className="score-text">Level {appState.levelNum + (appState.levelNum < levelData.levels.length - 1 ? 1 : 0)}/{levelData.levels.length - 1}</h1>
         </div>
       </div>

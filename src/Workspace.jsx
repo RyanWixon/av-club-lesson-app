@@ -30,12 +30,21 @@ function Workspace({ appState, setAppState, workspaceState, setWorkspaceState, g
   // if the win video has finished playing, go to the next level
   useEffect(() => {
     if (appState.levelSolved && !appState.playingWinVideo) {
+        let nextLevel = appState.levelNum + 1; 
+  
         setAppState(prev => ({
           ...prev,
-          levelNum: prev.levelNum + 1,
+          levelNum: nextLevel,
           levelSolution: levelData.levels[prev.levelNum + 1].solution,
           levelSolved: false
         }));
+
+        // if that was the last level, send the results to the backend
+        if (nextLevel == levelData.levels.length - 1) {
+          
+          // TODO: API call to connect with the backend
+          console.log("The simulation has been completed; Something should be sent to the backend");
+        }
     }
   }, [appState.playingWinVideo])
 
